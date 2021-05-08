@@ -1,0 +1,46 @@
+version: '3'
+services:
+
+  postgres:
+    image: 'postgres:latest'
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+
+  listener:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["./app", "-component", "listener"]
+    deploy:
+      replicas: 3
+    restart: on-failure
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
+      DB_CHANNEL_NNAME: test
+
+  notifier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["./app", "-component", "notifier"]
+    restart: on-failure
+    depends_on:
+      - postgres
+      - listener
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
+      DB_CHANNEL_NNAME: test
