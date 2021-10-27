@@ -26,10 +26,12 @@ func NewNotifier(logger *zap.SugaredLogger, cfg *config.Config) (*Notifier, erro
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName)
 
+	logger.With("dsn", dsn).Info("sqlx connecting...")
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("connect database: %w", err)
 	}
+	logger.With("dsn", dsn).Info("sqlx connected")
 
 	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
 	m, err := migrate.NewWithDatabaseInstance("file://migrations", "postgres", driver)

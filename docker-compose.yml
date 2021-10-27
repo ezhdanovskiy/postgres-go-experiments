@@ -1,8 +1,8 @@
 version: '3'
 services:
 
-  postgres:
-    image: 'postgres:latest'
+  db:
+    image: 'postgres:alpine'
     ports:
       - "5432:5432"
     environment:
@@ -19,9 +19,9 @@ services:
       replicas: 3
     restart: on-failure
     depends_on:
-      - postgres
+      - db
     environment:
-      DB_HOST: postgres
+      DB_HOST: db
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
@@ -35,10 +35,10 @@ services:
     command: ["./app", "-component", "notifier"]
     restart: on-failure
     depends_on:
-      - postgres
+      - db
       - listener
     environment:
-      DB_HOST: postgres
+      DB_HOST: db
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
